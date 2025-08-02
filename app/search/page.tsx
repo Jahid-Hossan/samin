@@ -1,99 +1,110 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ArrowLeft, Search, Eye, Users } from "lucide-react"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Eye, Search, Users } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 interface SearchResult {
-  username: string
-  section: string
-  batch: string
-  department: string
-  teamCount: number
-  createdAt: string
+  username: string;
+  section: string;
+  batch: string;
+  department: string;
+  teamCount: number;
+  createdAt: string;
 }
 
 export default function SearchPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedBox, setSelectedBox] = useState<SearchResult | null>(null)
-  const [password, setPassword] = useState("")
-  const { toast } = useToast()
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedBox, setSelectedBox] = useState<SearchResult | null>(null);
+  const [password, setPassword] = useState("");
+  const { toast } = useToast();
 
   const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/boxes/search?q=${encodeURIComponent(searchQuery)}`)
-      const data = await response.json()
+      const response = await fetch(
+        `/api/collections/search?q=${encodeURIComponent(searchQuery)}`
+      );
+      const data = await response.json();
 
       if (response.ok) {
-        setSearchResults(data.results)
+        setSearchResults(data.results);
         if (data.results.length === 0) {
           toast({
             title: "No Results",
             description: "No slide collections found matching your search",
-          })
+          });
         }
       } else {
         toast({
           title: "Search Failed",
           description: data.error || "Unable to find slide collections",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleAccessBox = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!selectedBox) return
+    e.preventDefault();
+    if (!selectedBox) return;
 
     try {
-      const response = await fetch("/api/boxes/join", {
+      const response = await fetch("/api/collections/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: selectedBox.username,
           password: password,
         }),
-      })
+      });
 
       if (response.ok) {
-        window.open(`/box/${selectedBox.username}?password=${password}`, "_blank")
+        window.open(
+          `/box/${selectedBox.username}?password=${password}`,
+          "_blank"
+        );
       } else {
-        const data = await response.json()
+        const data = await response.json();
         toast({
           title: "Access Denied",
           description: data.error || "Incorrect password",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -115,7 +126,9 @@ export default function SearchPage() {
                 <Search className="w-5 h-5 mr-2" />
                 Search Slide Collections
               </CardTitle>
-              <CardDescription>Search by collection ID, section, department, or batch year</CardDescription>
+              <CardDescription>
+                Search by collection ID, section, department, or batch year
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSearch} className="space-y-4">
@@ -160,7 +173,9 @@ export default function SearchPage() {
                         </div>
                         <div className="flex items-center space-x-1">
                           <Users className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm text-gray-600">{result.teamCount}</span>
+                          <span className="text-sm text-gray-600">
+                            {result.teamCount}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -178,7 +193,8 @@ export default function SearchPage() {
                 Access Collection
               </CardTitle>
               <CardDescription>
-                Select a collection from search results and enter the password to access
+                Select a collection from search results and enter the password
+                to access
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -222,5 +238,5 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

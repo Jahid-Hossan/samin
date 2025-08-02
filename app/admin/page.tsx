@@ -1,17 +1,7 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, FileText, Trash2, Eye, Search, BarChart3, Shield, Calendar } from "lucide-react"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,124 +12,163 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import {
+  BarChart3,
+  Calendar,
+  Eye,
+  FileText,
+  Search,
+  Shield,
+  Trash2,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 interface Collection {
-  _id: string
-  username: string
-  section: string
-  batch: string
-  faculty: string
-  department: string
-  teamCount: number
-  submissionCount: number
-  createdAt: string
-  submissions: any[]
+  _id: string;
+  username: string;
+  section: string;
+  batch: string;
+  faculty: string;
+  department: string;
+  teamCount: number;
+  submissionCount: number;
+  createdAt: string;
+  submissions: any[];
 }
 
 interface AdminStats {
-  totalCollections: number
-  totalSubmissions: number
-  collections: Collection[]
+  totalCollections: number;
+  totalSubmissions: number;
+  collections: Collection[];
 }
 
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [credentials, setCredentials] = useState({ username: "", password: "" })
-  const [adminData, setAdminData] = useState<AdminStats | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const { toast } = useToast()
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [credentials, setCredentials] = useState({
+    username: "",
+    password: "",
+  });
+  const [adminData, setAdminData] = useState<AdminStats | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const authString = btoa(`${credentials.username}:${credentials.password}`)
-      const response = await fetch("/api/boxes", {
+      const authString = btoa(
+        `${credentials.username}:${credentials.password}`
+      );
+      const response = await fetch("/api/collections", {
         headers: {
           Authorization: `Basic ${authString}`,
         },
-      })
+      });
 
       if (response.ok) {
-        const data = await response.json()
-        setAdminData(data)
-        setIsAuthenticated(true)
+        const data = await response.json();
+        setAdminData(data);
+        setIsAuthenticated(true);
         toast({
           title: "Login Successful",
           description: "Welcome to SlideLink Admin Dashboard",
-        })
+        });
       } else {
         toast({
           title: "Login Failed",
           description: "Invalid admin credentials",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
-  const handleDeleteCollection = async (collectionId: string, username: string) => {
+  const handleDeleteCollection = async (
+    collectionId: string,
+    username: string
+  ) => {
     try {
       const response = await fetch(`/api/admin/collections/${collectionId}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Basic ${btoa(`${credentials.username}:${credentials.password}`)}`,
+          Authorization: `Basic ${btoa(
+            `${credentials.username}:${credentials.password}`
+          )}`,
         },
-      })
+      });
 
       if (response.ok) {
         // Refresh data
-        const authString = btoa(`${credentials.username}:${credentials.password}`)
-        const refreshResponse = await fetch("/api/boxes", {
+        const authString = btoa(
+          `${credentials.username}:${credentials.password}`
+        );
+        const refreshResponse = await fetch("/api/collections", {
           headers: {
             Authorization: `Basic ${authString}`,
           },
-        })
+        });
 
         if (refreshResponse.ok) {
-          const data = await refreshResponse.json()
-          setAdminData(data)
+          const data = await refreshResponse.json();
+          setAdminData(data);
         }
 
         toast({
           title: "Collection Deleted",
           description: `${username} has been permanently deleted`,
-        })
+        });
       } else {
         toast({
           title: "Delete Failed",
           description: "Failed to delete collection",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Something went wrong while deleting",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const filteredCollections =
     adminData?.collections.filter(
       (collection) =>
         collection.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
         collection.section.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        collection.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        collection.faculty.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || []
+        collection.department
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        collection.faculty.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
 
   if (!isAuthenticated) {
     return (
@@ -150,7 +179,9 @@ export default function AdminPage() {
               <Shield className="w-8 h-8 text-white" />
             </div>
             <CardTitle className="text-2xl">SlideLink Admin</CardTitle>
-            <CardDescription>Enter your admin credentials to access the dashboard</CardDescription>
+            <CardDescription>
+              Enter your admin credentials to access the dashboard
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
@@ -160,7 +191,9 @@ export default function AdminPage() {
                   id="username"
                   placeholder="Enter admin username"
                   value={credentials.username}
-                  onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+                  onChange={(e) =>
+                    setCredentials({ ...credentials, username: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -171,7 +204,9 @@ export default function AdminPage() {
                   type="password"
                   placeholder="Enter admin password"
                   value={credentials.password}
-                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                  onChange={(e) =>
+                    setCredentials({ ...credentials, password: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -182,7 +217,7 @@ export default function AdminPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -196,8 +231,12 @@ export default function AdminPage() {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">SlideLink Admin</h1>
-                <p className="text-sm text-gray-600">System Administration Dashboard</p>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  SlideLink Admin
+                </h1>
+                <p className="text-sm text-gray-600">
+                  System Administration Dashboard
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -215,42 +254,62 @@ export default function AdminPage() {
         <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Collections</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Collections
+              </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{adminData?.totalCollections || 0}</div>
-              <p className="text-xs text-muted-foreground">Active slide collections</p>
+              <div className="text-2xl font-bold">
+                {adminData?.totalCollections || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Active slide collections
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Submissions
+              </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{adminData?.totalSubmissions || 0}</div>
-              <p className="text-xs text-muted-foreground">Slide submissions received</p>
+              <div className="text-2xl font-bold">
+                {adminData?.totalSubmissions || 0}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Slide submissions received
+              </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Completion</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Average Completion
+              </CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {adminData?.collections.length
                   ? Math.round(
-                      (adminData.totalSubmissions / adminData.collections.reduce((sum, c) => sum + c.teamCount, 0)) *
-                        100,
+                      (adminData.totalSubmissions /
+                        adminData.collections.reduce(
+                          (sum, c) => sum + c.teamCount,
+                          0
+                        )) *
+                        100
                     )
                   : 0}
                 %
               </div>
-              <p className="text-xs text-muted-foreground">Teams submitted slides</p>
+              <p className="text-xs text-muted-foreground">
+                Teams submitted slides
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -258,7 +317,9 @@ export default function AdminPage() {
         {/* Collections Management */}
         <Tabs defaultValue="collections" className="w-full">
           <TabsList>
-            <TabsTrigger value="collections">Collections Management</TabsTrigger>
+            <TabsTrigger value="collections">
+              Collections Management
+            </TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
@@ -268,7 +329,9 @@ export default function AdminPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>All Collections</CardTitle>
-                    <CardDescription>Manage all slide collections across the platform</CardDescription>
+                    <CardDescription>
+                      Manage all slide collections across the platform
+                    </CardDescription>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Search className="w-4 h-4 text-gray-400" />
@@ -284,10 +347,15 @@ export default function AdminPage() {
               <CardContent>
                 <div className="space-y-4">
                   {filteredCollections.map((collection) => (
-                    <div key={collection._id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={collection._id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="font-semibold text-lg">{collection.username}</h3>
+                          <h3 className="font-semibold text-lg">
+                            {collection.username}
+                          </h3>
                           <Badge variant="secondary">
                             {collection.submissionCount}/{collection.teamCount}
                           </Badge>
@@ -298,16 +366,27 @@ export default function AdminPage() {
                         <p className="text-sm text-gray-600 mb-1">
                           {collection.section} • {collection.department}
                         </p>
-                        <p className="text-xs text-gray-500">{collection.faculty}</p>
+                        <p className="text-xs text-gray-500">
+                          {collection.faculty}
+                        </p>
                         <p className="text-xs text-gray-400 mt-2">
                           <Calendar className="w-3 h-3 inline mr-1" />
-                          Created: {new Date(collection.createdAt).toLocaleString()}
+                          Created:{" "}
+                          {new Date(collection.createdAt).toLocaleString()}
                         </p>
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        <Button size="sm" variant="outline" asChild className="bg-transparent">
-                          <Link href={`/box/${collection.username}`} target="_blank">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          asChild
+                          className="bg-transparent"
+                        >
+                          <Link
+                            href={`/box/${collection.username}`}
+                            target="_blank"
+                          >
                             <Eye className="w-4 h-4 mr-1" />
                             View
                           </Link>
@@ -326,17 +405,26 @@ export default function AdminPage() {
                           </AlertDialogTrigger>
                           <AlertDialogContent>
                             <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Collection</AlertDialogTitle>
+                              <AlertDialogTitle>
+                                Delete Collection
+                              </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Are you sure you want to permanently delete "{collection.username}"? This will remove
-                                all {collection.submissionCount} submissions and cannot be undone.
+                                Are you sure you want to permanently delete "
+                                {collection.username}"? This will remove all{" "}
+                                {collection.submissionCount} submissions and
+                                cannot be undone.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
                                 className="bg-red-600 hover:bg-red-700"
-                                onClick={() => handleDeleteCollection(collection._id, collection.username)}
+                                onClick={() =>
+                                  handleDeleteCollection(
+                                    collection._id,
+                                    collection.username
+                                  )
+                                }
                               >
                                 Delete Permanently
                               </AlertDialogAction>
@@ -368,16 +456,16 @@ export default function AdminPage() {
                 <CardContent>
                   <div className="space-y-3">
                     {Object.entries(
-                      adminData?.collections.reduce(
-                        (acc, collection) => {
-                          const faculty = collection.faculty.split("(")[0].trim()
-                          acc[faculty] = (acc[faculty] || 0) + 1
-                          return acc
-                        },
-                        {} as Record<string, number>,
-                      ) || {},
+                      adminData?.collections.reduce((acc, collection) => {
+                        const faculty = collection.faculty.split("(")[0].trim();
+                        acc[faculty] = (acc[faculty] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>) || {}
                     ).map(([faculty, count]) => (
-                      <div key={faculty} className="flex items-center justify-between">
+                      <div
+                        key={faculty}
+                        className="flex items-center justify-between"
+                      >
                         <span className="text-sm">{faculty}</span>
                         <Badge variant="secondary">{count}</Badge>
                       </div>
@@ -394,14 +482,25 @@ export default function AdminPage() {
                 <CardContent>
                   <div className="space-y-3">
                     {adminData?.collections
-                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .sort(
+                        (a, b) =>
+                          new Date(b.createdAt).getTime() -
+                          new Date(a.createdAt).getTime()
+                      )
                       .slice(0, 5)
                       .map((collection) => (
-                        <div key={collection._id} className="flex items-center justify-between">
+                        <div
+                          key={collection._id}
+                          className="flex items-center justify-between"
+                        >
                           <div>
-                            <p className="text-sm font-medium">{collection.username}</p>
+                            <p className="text-sm font-medium">
+                              {collection.username}
+                            </p>
                             <p className="text-xs text-gray-500">
-                              {new Date(collection.createdAt).toLocaleDateString()}
+                              {new Date(
+                                collection.createdAt
+                              ).toLocaleDateString()}
                             </p>
                           </div>
                           <Badge variant="outline">
@@ -417,5 +516,5 @@ export default function AdminPage() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

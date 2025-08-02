@@ -1,18 +1,7 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useParams, useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Users, Eye, Plus, ExternalLink, Search, Trash2 } from "lucide-react"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,146 +12,171 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import {
+  ArrowLeft,
+  ExternalLink,
+  Eye,
+  Plus,
+  Search,
+  Trash2,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface BoxData {
-  username: string
-  section: string
-  batch: string
-  department: string
-  teamCount: number
-  createdAt: string
+  username: string;
+  section: string;
+  batch: string;
+  department: string;
+  teamCount: number;
+  createdAt: string;
 }
 
 interface Submission {
-  _id: string
-  teamName: string
-  slideLink: string
-  leaderEmail?: string
-  submittedAt: string
+  _id: string;
+  teamName: string;
+  slideLink: string;
+  leaderEmail?: string;
+  submittedAt: string;
 }
 
 export default function BoxPage() {
-  const params = useParams()
-  const searchParams = useSearchParams()
-  const username = params.username as string
-  const password = searchParams.get("password")
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const username = params.username as string;
+  const password = searchParams.get("password");
 
-  const [boxData, setBoxData] = useState<BoxData | null>(null)
-  const [submissions, setSubmissions] = useState<Submission[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [passwordInput, setPasswordInput] = useState(password || "")
+  const [boxData, setBoxData] = useState<BoxData | null>(null);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState(password || "");
   const [submissionData, setSubmissionData] = useState({
     teamName: "",
     slideLink: "",
     leaderEmail: "",
-  })
-  const [searchTerm, setSearchTerm] = useState("")
-  const { toast } = useToast()
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     if (password) {
-      authenticateAndLoadData()
+      authenticateAndLoadData();
     }
-  }, [username, password])
+  }, [username, password]);
 
   const authenticateAndLoadData = async () => {
     try {
-      const response = await fetch("/api/boxes/join", {
+      const response = await fetch("/api/collections/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           username: username,
           password: password || passwordInput,
         }),
-      })
+      });
 
       if (response.ok) {
-        setIsAuthenticated(true)
-        await loadBoxData()
-        await loadSubmissions()
+        setIsAuthenticated(true);
+        await loadBoxData();
+        await loadSubmissions();
       } else {
-        const data = await response.json()
+        const data = await response.json();
         toast({
           title: "Authentication Failed",
           description: data.error || "Invalid password",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to authenticate",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const loadBoxData = async () => {
     try {
-      const response = await fetch(`/api/boxes/${username}`)
+      const response = await fetch(`/api/collections/${username}`);
       if (response.ok) {
-        const data = await response.json()
-        setBoxData(data)
+        const data = await response.json();
+        setBoxData(data);
       }
     } catch (error) {
-      console.error("Failed to load box data:", error)
+      console.error("Failed to load box data:", error);
     }
-  }
+  };
 
   const loadSubmissions = async () => {
     try {
-      const response = await fetch(`/api/boxes/${username}/submissions`)
+      const response = await fetch(`/api/collections/${username}/submissions`);
       if (response.ok) {
-        const data = await response.json()
-        setSubmissions(data.submissions)
+        const data = await response.json();
+        setSubmissions(data.submissions);
       }
     } catch (error) {
-      console.error("Failed to load submissions:", error)
+      console.error("Failed to load submissions:", error);
     }
-  }
+  };
 
   const handleSubmission = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const response = await fetch(`/api/boxes/${username}/submissions`, {
+      const response = await fetch(`/api/collections/${username}/submissions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(submissionData),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
         toast({
           title: "Success!",
           description: "Slide link submitted successfully",
-        })
-        setSubmissionData({ teamName: "", slideLink: "", leaderEmail: "" })
-        await loadSubmissions() // Refresh submissions
+        });
+        setSubmissionData({ teamName: "", slideLink: "", leaderEmail: "" });
+        await loadSubmissions(); // Refresh submissions
       } else {
         toast({
           title: "Error",
           description: data.error || "Failed to submit",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const filteredSubmissions = submissions.filter((submission) =>
-    submission.teamName.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+    submission.teamName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (isLoading) {
     return (
@@ -172,7 +186,7 @@ export default function BoxPage() {
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!isAuthenticated) {
@@ -191,13 +205,15 @@ export default function BoxPage() {
           <Card>
             <CardHeader>
               <CardTitle>Collection Access Required</CardTitle>
-              <CardDescription>Enter the password to access {username}</CardDescription>
+              <CardDescription>
+                Enter the password to access {username}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form
                 onSubmit={(e) => {
-                  e.preventDefault()
-                  authenticateAndLoadData()
+                  e.preventDefault();
+                  authenticateAndLoadData();
                 }}
                 className="space-y-4"
               >
@@ -220,7 +236,7 @@ export default function BoxPage() {
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -243,7 +259,8 @@ export default function BoxPage() {
                 <div>
                   <CardTitle className="text-2xl">{boxData.username}</CardTitle>
                   <CardDescription className="text-lg">
-                    {boxData.section} • {boxData.department} • Batch {boxData.batch}
+                    {boxData.section} • {boxData.department} • Batch{" "}
+                    {boxData.batch}
                   </CardDescription>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -265,13 +282,16 @@ export default function BoxPage() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Collection</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete this slide collection? This action cannot be undone and all
-                          submissions will be lost.
+                          Are you sure you want to delete this slide collection?
+                          This action cannot be undone and all submissions will
+                          be lost.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction className="bg-red-600 hover:bg-red-700">Delete Collection</AlertDialogAction>
+                        <AlertDialogAction className="bg-red-600 hover:bg-red-700">
+                          Delete Collection
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -297,7 +317,9 @@ export default function BoxPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Submit Your Team's Slides</CardTitle>
-                <CardDescription>Upload your presentation slides and share the link here</CardDescription>
+                <CardDescription>
+                  Upload your presentation slides and share the link here
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmission} className="space-y-4">
@@ -308,7 +330,12 @@ export default function BoxPage() {
                       placeholder="e.g., Team Alpha, Group 1"
                       maxLength={50}
                       value={submissionData.teamName}
-                      onChange={(e) => setSubmissionData({ ...submissionData, teamName: e.target.value })}
+                      onChange={(e) =>
+                        setSubmissionData({
+                          ...submissionData,
+                          teamName: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
@@ -320,22 +347,35 @@ export default function BoxPage() {
                       type="url"
                       placeholder="https://drive.google.com/... or https://onedrive.live.com/..."
                       value={submissionData.slideLink}
-                      onChange={(e) => setSubmissionData({ ...submissionData, slideLink: e.target.value })}
+                      onChange={(e) =>
+                        setSubmissionData({
+                          ...submissionData,
+                          slideLink: e.target.value,
+                        })
+                      }
                       required
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Make sure your slide link is publicly accessible or shared with viewing permissions
+                      Make sure your slide link is publicly accessible or shared
+                      with viewing permissions
                     </p>
                   </div>
 
                   <div>
-                    <Label htmlFor="leaderEmail">Team Leader Email (Optional)</Label>
+                    <Label htmlFor="leaderEmail">
+                      Team Leader Email (Optional)
+                    </Label>
                     <Input
                       id="leaderEmail"
                       type="email"
                       placeholder="leader@example.com"
                       value={submissionData.leaderEmail}
-                      onChange={(e) => setSubmissionData({ ...submissionData, leaderEmail: e.target.value })}
+                      onChange={(e) =>
+                        setSubmissionData({
+                          ...submissionData,
+                          leaderEmail: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
@@ -353,7 +393,9 @@ export default function BoxPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle>All Submissions</CardTitle>
-                    <CardDescription>View all submitted presentation slides</CardDescription>
+                    <CardDescription>
+                      View all submitted presentation slides
+                    </CardDescription>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Search className="w-4 h-4 text-gray-400" />
@@ -370,7 +412,11 @@ export default function BoxPage() {
                 {filteredSubmissions.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <Users className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                    <p>{submissions.length === 0 ? "No submissions yet" : "No teams match your search"}</p>
+                    <p>
+                      {submissions.length === 0
+                        ? "No submissions yet"
+                        : "No teams match your search"}
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -381,13 +427,22 @@ export default function BoxPage() {
                       >
                         <div>
                           <h3 className="font-medium">{submission.teamName}</h3>
-                          {submission.leaderEmail && <p className="text-sm text-gray-600">{submission.leaderEmail}</p>}
+                          {submission.leaderEmail && (
+                            <p className="text-sm text-gray-600">
+                              {submission.leaderEmail}
+                            </p>
+                          )}
                           <p className="text-xs text-gray-500">
-                            Submitted {new Date(submission.submittedAt).toLocaleString()}
+                            Submitted{" "}
+                            {new Date(submission.submittedAt).toLocaleString()}
                           </p>
                         </div>
                         <Button asChild size="sm">
-                          <a href={submission.slideLink} target="_blank" rel="noopener noreferrer">
+                          <a
+                            href={submission.slideLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             View Slides
                           </a>
@@ -402,5 +457,5 @@ export default function BoxPage() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
