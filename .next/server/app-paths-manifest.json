@@ -1,7 +1,0 @@
-{
-  "/collection/[username]/page": "app/collection/[username]/page.js",
-  "/api/collections/route": "app/api/collections/route.js",
-  "/create/page": "app/create/page.js",
-  "/page": "app/page.js",
-  "/api/qr/route": "app/api/qr/route.js"
-}
