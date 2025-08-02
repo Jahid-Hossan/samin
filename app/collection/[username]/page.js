@@ -1,143 +1,171 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams, useSearchParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Users, Eye, Plus, ExternalLink, Search, Calendar, Clock } from "lucide-react"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  ExternalLink,
+  Eye,
+  Plus,
+  Search,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function CollectionPage() {
-  const params = useParams()
-  const searchParams = useSearchParams()
-  const username = params.username
-  const password = searchParams.get("password")
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const username = params.username;
+  const password = searchParams.get("password");
 
-  const [collectionData, setCollectionData] = useState(null)
-  const [submissions, setSubmissions] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [passwordInput, setPasswordInput] = useState(password || "")
+  const [collectionData, setCollectionData] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState(password || "");
   const [submissionData, setSubmissionData] = useState({
     teamName: "",
     slideLink: "",
     leaderEmail: "",
-  })
-  const [searchTerm, setSearchTerm] = useState("")
-  const { toast } = useToast()
+  });
+  const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
 
   useEffect(() => {
     if (password) {
-      authenticateAndLoadData()
+      authenticateAndLoadData();
     }
-  }, [username, password])
+  }, [username, password]);
 
   const authenticateAndLoadData = async () => {
     try {
-      const response = await fetch(`${process.env.BACKEND_URL || "http://localhost:5000"}/api/collections/join`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: username,
-          password: password || passwordInput,
-        }),
-      })
+      const response = await fetch(
+        `${
+          process.env.BACKEND_URL || "http://localhost:3000"
+        }/api/collections/join`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            username: username,
+            password: password || passwordInput,
+          }),
+        }
+      );
 
       if (response.ok) {
-        setIsAuthenticated(true)
-        await loadCollectionData()
-        await loadSubmissions()
+        setIsAuthenticated(true);
+        await loadCollectionData();
+        await loadSubmissions();
       } else {
-        const data = await response.json()
+        const data = await response.json();
         toast({
           title: "Authentication Failed",
           description: data.error || "Invalid password",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to authenticate",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const loadCollectionData = async () => {
     try {
-      const response = await fetch(`${process.env.BACKEND_URL || "http://localhost:5000"}/api/collections/${username}`)
+      const response = await fetch(
+        `${
+          process.env.BACKEND_URL || "http://localhost:3000"
+        }/api/collections/${username}`
+      );
       if (response.ok) {
-        const data = await response.json()
-        setCollectionData(data)
+        const data = await response.json();
+        setCollectionData(data);
       }
     } catch (error) {
-      console.error("Failed to load collection data:", error)
+      console.error("Failed to load collection data:", error);
     }
-  }
+  };
 
   const loadSubmissions = async () => {
     try {
       const response = await fetch(
-        `${process.env.BACKEND_URL || "http://localhost:5000"}/api/collections/${username}/submissions`,
-      )
+        `${
+          process.env.BACKEND_URL || "http://localhost:3000"
+        }/api/collections/${username}/submissions`
+      );
       if (response.ok) {
-        const data = await response.json()
-        setSubmissions(data.submissions)
+        const data = await response.json();
+        setSubmissions(data.submissions);
       }
     } catch (error) {
-      console.error("Failed to load submissions:", error)
+      console.error("Failed to load submissions:", error);
     }
-  }
+  };
 
   const handleSubmission = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
       const response = await fetch(
-        `${process.env.BACKEND_URL || "http://localhost:5000"}/api/collections/${username}/submissions`,
+        `${
+          process.env.BACKEND_URL || "http://localhost:3000"
+        }/api/collections/${username}/submissions`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(submissionData),
-        },
-      )
+        }
+      );
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
         toast({
           title: "Success!",
           description: "Slide link submitted successfully",
-        })
-        setSubmissionData({ teamName: "", slideLink: "", leaderEmail: "" })
-        await loadSubmissions()
+        });
+        setSubmissionData({ teamName: "", slideLink: "", leaderEmail: "" });
+        await loadSubmissions();
       } else {
         toast({
           title: "Error",
           description: data.error || "Failed to submit",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const filteredSubmissions = submissions.filter((submission) =>
-    submission.teamName.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+    submission.teamName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (isLoading) {
     return (
@@ -147,7 +175,7 @@ export default function CollectionPage() {
           <p className="text-gray-600">Loading collection...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!isAuthenticated) {
@@ -166,13 +194,15 @@ export default function CollectionPage() {
           <Card className="shadow-xl border-0">
             <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
               <CardTitle>Collection Access Required</CardTitle>
-              <CardDescription className="text-blue-100">Enter the password to access {username}</CardDescription>
+              <CardDescription className="text-blue-100">
+                Enter the password to access {username}
+              </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
               <form
                 onSubmit={(e) => {
-                  e.preventDefault()
-                  authenticateAndLoadData()
+                  e.preventDefault();
+                  authenticateAndLoadData();
                 }}
                 className="space-y-4"
               >
@@ -198,7 +228,7 @@ export default function CollectionPage() {
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -219,20 +249,28 @@ export default function CollectionPage() {
             <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-2xl font-bold">{collectionData.username}</CardTitle>
+                  <CardTitle className="text-2xl font-bold">
+                    {collectionData.username}
+                  </CardTitle>
                   <CardDescription className="text-blue-100 text-lg">
                     <div className="space-y-1">
                       <div>
                         {collectionData.section} • {collectionData.courseCode}
                       </div>
-                      <div className="text-blue-200 font-medium">{collectionData.semester}</div>
+                      <div className="text-blue-200 font-medium">
+                        {collectionData.semester}
+                      </div>
                       <div className="text-sm">{collectionData.department}</div>
                     </div>
                   </CardDescription>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Badge variant="secondary" className="text-sm bg-white/20 text-white border-white/30">
-                    {submissions.length}/{collectionData.teamCount} teams submitted
+                  <Badge
+                    variant="secondary"
+                    className="text-sm bg-white/20 text-white border-white/30"
+                  >
+                    {submissions.length}/{collectionData.teamCount} teams
+                    submitted
                   </Badge>
                   <div className="text-right text-sm text-blue-100">
                     <div className="flex items-center">
@@ -285,7 +323,12 @@ export default function CollectionPage() {
                       placeholder="e.g., Team Alpha, Group 1"
                       maxLength={50}
                       value={submissionData.teamName}
-                      onChange={(e) => setSubmissionData({ ...submissionData, teamName: e.target.value })}
+                      onChange={(e) =>
+                        setSubmissionData({
+                          ...submissionData,
+                          teamName: e.target.value,
+                        })
+                      }
                       required
                     />
                   </div>
@@ -297,22 +340,35 @@ export default function CollectionPage() {
                       type="url"
                       placeholder="https://drive.google.com/... or https://onedrive.live.com/..."
                       value={submissionData.slideLink}
-                      onChange={(e) => setSubmissionData({ ...submissionData, slideLink: e.target.value })}
+                      onChange={(e) =>
+                        setSubmissionData({
+                          ...submissionData,
+                          slideLink: e.target.value,
+                        })
+                      }
                       required
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Make sure your slide link is publicly accessible or shared with viewing permissions
+                      Make sure your slide link is publicly accessible or shared
+                      with viewing permissions
                     </p>
                   </div>
 
                   <div>
-                    <Label htmlFor="leaderEmail">Team Leader Email (Optional)</Label>
+                    <Label htmlFor="leaderEmail">
+                      Team Leader Email (Optional)
+                    </Label>
                     <Input
                       id="leaderEmail"
                       type="email"
                       placeholder="leader@example.com"
                       value={submissionData.leaderEmail}
-                      onChange={(e) => setSubmissionData({ ...submissionData, leaderEmail: e.target.value })}
+                      onChange={(e) =>
+                        setSubmissionData({
+                          ...submissionData,
+                          leaderEmail: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
@@ -353,9 +409,14 @@ export default function CollectionPage() {
                   <div className="text-center py-12 text-gray-500">
                     <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                     <p className="text-lg">
-                      {submissions.length === 0 ? "No submissions yet" : "No teams match your search"}
+                      {submissions.length === 0
+                        ? "No submissions yet"
+                        : "No teams match your search"}
                     </p>
-                    <p className="text-sm">Submissions will appear here once teams start uploading their slides</p>
+                    <p className="text-sm">
+                      Submissions will appear here once teams start uploading
+                      their slides
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -365,13 +426,18 @@ export default function CollectionPage() {
                         className="flex items-center justify-between p-6 border rounded-xl hover:shadow-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50"
                       >
                         <div className="flex-1">
-                          <h3 className="font-bold text-lg text-gray-900">{submission.teamName}</h3>
+                          <h3 className="font-bold text-lg text-gray-900">
+                            {submission.teamName}
+                          </h3>
                           {submission.leaderEmail && (
-                            <p className="text-sm text-blue-600 font-medium">{submission.leaderEmail}</p>
+                            <p className="text-sm text-blue-600 font-medium">
+                              {submission.leaderEmail}
+                            </p>
                           )}
                           <p className="text-xs text-gray-500 mt-2 flex items-center">
                             <Clock className="w-3 h-3 mr-1" />
-                            Submitted {new Date(submission.submittedAt).toLocaleString()}
+                            Submitted{" "}
+                            {new Date(submission.submittedAt).toLocaleString()}
                           </p>
                         </div>
                         <Button
@@ -379,7 +445,11 @@ export default function CollectionPage() {
                           size="sm"
                           className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                         >
-                          <a href={submission.slideLink} target="_blank" rel="noopener noreferrer">
+                          <a
+                            href={submission.slideLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <ExternalLink className="w-4 h-4 mr-2" />
                             View Slides
                           </a>
@@ -394,5 +464,5 @@ export default function CollectionPage() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }

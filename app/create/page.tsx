@@ -1,17 +1,29 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Copy } from "lucide-react"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Copy } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const faculties = {
   "Faculty of Science and Information Technology (FSIT)": [
@@ -54,73 +66,75 @@ const faculties = {
     "Development Studies (DS)",
     "Information Science and Library Management (ISLM)",
   ],
-}
+};
 
-const batches = ["2020", "2021", "2022", "2023", "2024", "2025"]
+const batches = ["2020", "2021", "2022", "2023", "2024", "2025"];
 
 export default function CreateBoxPage() {
   const [formData, setFormData] = useState({
-    section: "",
+    courseCode: "",
     batch: "",
     faculty: "",
     department: "",
     teamCount: "",
     password: "",
     creatorEmail: "",
-  })
+  });
   const [createdBox, setCreatedBox] = useState<{
-    username: string
-    shareLink: string
-    qrCode: string
-  } | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
-  const router = useRouter()
+    username: string;
+    shareLink: string;
+    qrCode: string;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
+
+    console.log(formData);
 
     try {
-      const response = await fetch("/api/boxes", {
+      const response = await fetch("/api/collections", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        setCreatedBox(data)
+        setCreatedBox(data);
         toast({
           title: "Success!",
           description: "Slide collection created successfully",
-        })
+        });
       } else {
         toast({
           title: "Error",
           description: data.error || "Failed to create collection",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(text);
     toast({
       title: "Copied!",
       description: "Link copied to clipboard",
-    })
-  }
+    });
+  };
 
   if (createdBox) {
     return (
@@ -137,9 +151,12 @@ export default function CreateBoxPage() {
 
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl text-green-600">Collection Created Successfully!</CardTitle>
+              <CardTitle className="text-2xl text-green-600">
+                Collection Created Successfully!
+              </CardTitle>
               <CardDescription>
-                Your slide collection is ready. Share the details below with your classmates.
+                Your slide collection is ready. Share the details below with
+                your classmates.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -147,7 +164,11 @@ export default function CreateBoxPage() {
                 <Label className="text-sm font-medium">Collection ID</Label>
                 <div className="flex items-center space-x-2 mt-1">
                   <Input value={createdBox.username} readOnly />
-                  <Button size="sm" variant="outline" onClick={() => copyToClipboard(createdBox.username)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => copyToClipboard(createdBox.username)}
+                  >
                     <Copy className="w-4 h-4" />
                   </Button>
                 </div>
@@ -157,7 +178,11 @@ export default function CreateBoxPage() {
                 <Label className="text-sm font-medium">Share Link</Label>
                 <div className="flex items-center space-x-2 mt-1">
                   <Input value={createdBox.shareLink} readOnly />
-                  <Button size="sm" variant="outline" onClick={() => copyToClipboard(createdBox.shareLink)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => copyToClipboard(createdBox.shareLink)}
+                  >
                     <Copy className="w-4 h-4" />
                   </Button>
                 </div>
@@ -166,19 +191,29 @@ export default function CreateBoxPage() {
               <div className="text-center">
                 <div className="bg-white p-4 rounded-lg inline-block">
                   <img
-                    src={`/api/qr?text=${encodeURIComponent(createdBox.shareLink)}`}
+                    src={`/api/qr?text=${encodeURIComponent(
+                      createdBox.shareLink
+                    )}`}
                     alt="QR Code for sharing"
                     className="w-32 h-32 mx-auto"
                   />
-                  <p className="text-sm text-gray-600 mt-2">QR Code for easy sharing</p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    QR Code for easy sharing
+                  </p>
                 </div>
               </div>
 
               <div className="flex space-x-3">
                 <Button asChild className="flex-1">
-                  <Link href={`/box/${createdBox.username}`}>Go to Collection</Link>
+                  <Link href={`/box/${createdBox.username}`}>
+                    Go to Collection
+                  </Link>
                 </Button>
-                <Button variant="outline" asChild className="flex-1 bg-transparent">
+                <Button
+                  variant="outline"
+                  asChild
+                  className="flex-1 bg-transparent"
+                >
                   <Link href="/create">Create Another</Link>
                 </Button>
               </div>
@@ -186,7 +221,7 @@ export default function CreateBoxPage() {
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -205,7 +240,8 @@ export default function CreateBoxPage() {
           <CardHeader>
             <CardTitle>Create Slide Collection</CardTitle>
             <CardDescription>
-              Set up a new slide collection for your class section to collect presentation slide links.
+              Set up a new slide collection for your class section to collect
+              presentation slide links.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -215,15 +251,22 @@ export default function CreateBoxPage() {
                 <Input
                   id="section"
                   placeholder="e.g., CS101, EEE201"
-                  value={formData.section}
-                  onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+                  value={formData.courseCode}
+                  onChange={(e) =>
+                    setFormData({ ...formData, courseCode: e.target.value })
+                  }
                   required
                 />
               </div>
 
               <div>
                 <Label htmlFor="batch">Batch *</Label>
-                <Select value={formData.batch} onValueChange={(value) => setFormData({ ...formData, batch: value })}>
+                <Select
+                  value={formData.batch}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, batch: value })
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select batch year" />
                   </SelectTrigger>
@@ -242,7 +285,11 @@ export default function CreateBoxPage() {
                 <Select
                   value={formData.faculty}
                   onValueChange={(value) => {
-                    setFormData({ ...formData, faculty: value, department: "" })
+                    setFormData({
+                      ...formData,
+                      faculty: value,
+                      department: "",
+                    });
                   }}
                 >
                   <SelectTrigger>
@@ -262,15 +309,25 @@ export default function CreateBoxPage() {
                 <Label htmlFor="department">Department *</Label>
                 <Select
                   value={formData.department}
-                  onValueChange={(value) => setFormData({ ...formData, department: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, department: value })
+                  }
                   disabled={!formData.faculty}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={formData.faculty ? "Select department" : "Select faculty first"} />
+                    <SelectValue
+                      placeholder={
+                        formData.faculty
+                          ? "Select department"
+                          : "Select faculty first"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {formData.faculty &&
-                      faculties[formData.faculty as keyof typeof faculties]?.map((dept) => (
+                      faculties[
+                        formData.faculty as keyof typeof faculties
+                      ]?.map((dept) => (
                         <SelectItem key={dept} value={dept}>
                           {dept}
                         </SelectItem>
@@ -288,7 +345,9 @@ export default function CreateBoxPage() {
                   max="50"
                   placeholder="e.g., 10"
                   value={formData.teamCount}
-                  onChange={(e) => setFormData({ ...formData, teamCount: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, teamCount: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -302,7 +361,9 @@ export default function CreateBoxPage() {
                   minLength={6}
                   maxLength={12}
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -314,7 +375,9 @@ export default function CreateBoxPage() {
                   type="email"
                   placeholder="For password recovery"
                   value={formData.creatorEmail}
-                  onChange={(e) => setFormData({ ...formData, creatorEmail: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, creatorEmail: e.target.value })
+                  }
                 />
               </div>
 
@@ -326,5 +389,5 @@ export default function CreateBoxPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

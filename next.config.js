@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   env: {
-    BACKEND_URL: process.env.BACKEND_URL || "http://localhost:5000",
+    BACKEND_URL: process.env.BACKEND_URL || "http://localhost:3000",
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -12,6 +12,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

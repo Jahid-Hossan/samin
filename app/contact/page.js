@@ -1,14 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Mail, Phone, MapPin, Send } from "lucide-react"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Mail, MapPin, Phone, Send } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -16,44 +22,48 @@ export default function ContactPage() {
     email: "",
     subject: "",
     message: "",
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.BACKEND_URL || "http://localhost:5000"}/api/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
+      const response = await fetch(
+        `${process.env.BACKEND_URL || "http://localhost:3000"}/api/contact`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (response.ok) {
         toast({
           title: "Message Sent!",
-          description: "Thank you for contacting us. We'll get back to you soon.",
-        })
-        setFormData({ name: "", email: "", subject: "", message: "" })
+          description:
+            "Thank you for contacting us. We'll get back to you soon.",
+        });
+        setFormData({ name: "", email: "", subject: "", message: "" });
       } else {
         toast({
           title: "Error",
           description: "Failed to send message. Please try again.",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
@@ -73,11 +83,13 @@ export default function ContactPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Get in{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Touch</span>
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Touch
+            </span>
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Have questions about SlideLink? We'd love to hear from you. Send us a message and we'll respond as soon as
-            possible.
+            Have questions about SlideLink? We'd love to hear from you. Send us
+            a message and we'll respond as soon as possible.
           </p>
         </div>
 
@@ -131,7 +143,9 @@ export default function ContactPage() {
                 </div>
 
                 <div className="pt-4 border-t">
-                  <h3 className="font-semibold text-gray-900 mb-2">Office Hours</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Office Hours
+                  </h3>
                   <p className="text-gray-600 text-sm">
                     Monday - Friday: 9:00 AM - 6:00 PM
                     <br />
@@ -150,7 +164,8 @@ export default function ContactPage() {
               <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
                 <CardTitle>Send us a Message</CardTitle>
                 <CardDescription className="text-blue-100">
-                  Fill out the form below and we'll get back to you within 24 hours
+                  Fill out the form below and we'll get back to you within 24
+                  hours
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6">
@@ -162,7 +177,9 @@ export default function ContactPage() {
                         id="name"
                         placeholder="Enter your full name"
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, name: e.target.value })
+                        }
                         required
                       />
                     </div>
@@ -173,7 +190,9 @@ export default function ContactPage() {
                         type="email"
                         placeholder="Enter your email"
                         value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
                         required
                       />
                     </div>
@@ -185,7 +204,9 @@ export default function ContactPage() {
                       id="subject"
                       placeholder="What is this regarding?"
                       value={formData.subject}
-                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, subject: e.target.value })
+                      }
                       required
                     />
                   </div>
@@ -197,7 +218,9 @@ export default function ContactPage() {
                       placeholder="Tell us more about your inquiry..."
                       rows={6}
                       value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, message: e.target.value })
+                      }
                       required
                     />
                   </div>
@@ -226,35 +249,51 @@ export default function ContactPage() {
         <div className="mt-16">
           <Card className="shadow-xl border-0">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Frequently Asked Questions</CardTitle>
-              <CardDescription>Quick answers to common questions about SlideLink</CardDescription>
+              <CardTitle className="text-2xl">
+                Frequently Asked Questions
+              </CardTitle>
+              <CardDescription>
+                Quick answers to common questions about SlideLink
+              </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">How do I create a collection?</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    How do I create a collection?
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Click "Create Collection" on the homepage, fill in your course details, and share the generated link
-                    with your classmates.
+                    Click "Create Collection" on the homepage, fill in your
+                    course details, and share the generated link with your
+                    classmates.
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Is SlideLink free to use?</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Is SlideLink free to use?
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Yes! SlideLink is completely free for all students and instructors at participating universities.
+                    Yes! SlideLink is completely free for all students and
+                    instructors at participating universities.
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">How long do collections last?</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    How long do collections last?
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Collections automatically expire after 24 hours to keep the platform organized and secure.
+                    Collections automatically expire after 24 hours to keep the
+                    platform organized and secure.
                   </p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Can I recover a deleted collection?</h3>
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    Can I recover a deleted collection?
+                  </h3>
                   <p className="text-gray-600 text-sm">
-                    Unfortunately, deleted collections cannot be recovered. Please make sure to download any important
-                    submissions before deletion.
+                    Unfortunately, deleted collections cannot be recovered.
+                    Please make sure to download any important submissions
+                    before deletion.
                   </p>
                 </div>
               </div>
@@ -263,5 +302,5 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

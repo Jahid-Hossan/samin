@@ -1,15 +1,27 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Copy, Download } from "lucide-react"
-import Link from "next/link"
-import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Copy, Download } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const faculties = {
   "Faculty of Science and Information Technology (FSIT)": [
@@ -52,9 +64,9 @@ const faculties = {
     "Development Studies (DS)",
     "Information Science and Library Management (ISLM)",
   ],
-}
+};
 
-const semesters = ["Spring 2025", "Summer 2025", "Fall 2025"]
+const semesters = ["Spring 2025", "Summer 2025", "Fall 2025"];
 
 export default function CreateCollectionPage() {
   const [formData, setFormData] = useState({
@@ -66,65 +78,68 @@ export default function CreateCollectionPage() {
     teamCount: "",
     password: "",
     creatorEmail: "",
-  })
-  const [createdCollection, setCreatedCollection] = useState(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
-  const router = useRouter()
+  });
+  const [createdCollection, setCreatedCollection] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      const response = await fetch(`${process.env.BACKEND_URL || "http://localhost:5000"}/api/collections`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      })
+      const response = await fetch(
+        `${process.env.BACKEND_URL || "http://localhost:3000"}/api/collections`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (response.ok) {
-        setCreatedCollection(data)
+        setCreatedCollection(data);
         toast({
           title: "Success!",
           description: "Slide collection created successfully",
-        })
+        });
       } else {
         toast({
           title: "Error",
           description: data.error || "Failed to create collection",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(text);
     toast({
       title: "Copied!",
       description: "Link copied to clipboard",
-    })
-  }
+    });
+  };
 
   const downloadQR = () => {
     if (createdCollection) {
-      const link = document.createElement("a")
-      link.href = createdCollection.qrCode
-      link.download = `${createdCollection.username}-qr.png`
-      link.click()
+      const link = document.createElement("a");
+      link.href = createdCollection.qrCode;
+      link.download = `${createdCollection.username}-qr.png`;
+      link.click();
     }
-  }
+  };
 
   if (createdCollection) {
     return (
@@ -141,17 +156,28 @@ export default function CreateCollectionPage() {
 
           <Card className="shadow-xl border-0">
             <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
-              <CardTitle className="text-2xl">Collection Created Successfully!</CardTitle>
+              <CardTitle className="text-2xl">
+                Collection Created Successfully!
+              </CardTitle>
               <CardDescription className="text-blue-100">
-                Your slide collection is ready. Share the details below with your classmates.
+                Your slide collection is ready. Share the details below with
+                your classmates.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
               <div>
                 <Label className="text-sm font-medium">Collection ID</Label>
                 <div className="flex items-center space-x-2 mt-1">
-                  <Input value={createdCollection.username} readOnly className="font-mono" />
-                  <Button size="sm" variant="outline" onClick={() => copyToClipboard(createdCollection.username)}>
+                  <Input
+                    value={createdCollection.username}
+                    readOnly
+                    className="font-mono"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => copyToClipboard(createdCollection.username)}
+                  >
                     <Copy className="w-4 h-4" />
                   </Button>
                 </div>
@@ -160,8 +186,16 @@ export default function CreateCollectionPage() {
               <div>
                 <Label className="text-sm font-medium">Share Link</Label>
                 <div className="flex items-center space-x-2 mt-1">
-                  <Input value={createdCollection.shareLink} readOnly className="font-mono text-sm" />
-                  <Button size="sm" variant="outline" onClick={() => copyToClipboard(createdCollection.shareLink)}>
+                  <Input
+                    value={createdCollection.shareLink}
+                    readOnly
+                    className="font-mono text-sm"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => copyToClipboard(createdCollection.shareLink)}
+                  >
                     <Copy className="w-4 h-4" />
                   </Button>
                 </div>
@@ -174,8 +208,15 @@ export default function CreateCollectionPage() {
                     alt="QR Code for sharing"
                     className="w-40 h-40 mx-auto"
                   />
-                  <p className="text-sm text-gray-600 mt-3">QR Code for easy sharing</p>
-                  <Button size="sm" variant="outline" onClick={downloadQR} className="mt-2 bg-transparent">
+                  <p className="text-sm text-gray-600 mt-3">
+                    QR Code for easy sharing
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={downloadQR}
+                    className="mt-2 bg-transparent"
+                  >
                     <Download className="w-4 h-4 mr-1" />
                     Download QR
                   </Button>
@@ -187,7 +228,9 @@ export default function CreateCollectionPage() {
                   asChild
                   className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 >
-                  <Link href={`/collection/${createdCollection.username}`}>Go to Collection</Link>
+                  <Link href={`/collection/${createdCollection.username}`}>
+                    Go to Collection
+                  </Link>
                 </Button>
                 <Button
                   variant="outline"
@@ -201,7 +244,7 @@ export default function CreateCollectionPage() {
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -220,7 +263,8 @@ export default function CreateCollectionPage() {
           <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
             <CardTitle>Create Slide Collection</CardTitle>
             <CardDescription className="text-blue-100">
-              Set up a new slide collection for your class section to collect presentation slide links.
+              Set up a new slide collection for your class section to collect
+              presentation slide links.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
@@ -231,7 +275,9 @@ export default function CreateCollectionPage() {
                   id="section"
                   placeholder="e.g., 42-E, 65-A, 30-B"
                   value={formData.section}
-                  onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, section: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -242,7 +288,9 @@ export default function CreateCollectionPage() {
                   id="courseCode"
                   placeholder="e.g., SE112, CSE101, EEE201"
                   value={formData.courseCode}
-                  onChange={(e) => setFormData({ ...formData, courseCode: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, courseCode: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -251,7 +299,9 @@ export default function CreateCollectionPage() {
                 <Label htmlFor="semester">Semester *</Label>
                 <Select
                   value={formData.semester}
-                  onValueChange={(value) => setFormData({ ...formData, semester: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, semester: value })
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select semester" />
@@ -271,7 +321,11 @@ export default function CreateCollectionPage() {
                 <Select
                   value={formData.faculty}
                   onValueChange={(value) => {
-                    setFormData({ ...formData, faculty: value, department: "" })
+                    setFormData({
+                      ...formData,
+                      faculty: value,
+                      department: "",
+                    });
                   }}
                 >
                   <SelectTrigger>
@@ -291,11 +345,19 @@ export default function CreateCollectionPage() {
                 <Label htmlFor="department">Department *</Label>
                 <Select
                   value={formData.department}
-                  onValueChange={(value) => setFormData({ ...formData, department: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, department: value })
+                  }
                   disabled={!formData.faculty}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={formData.faculty ? "Select department" : "Select faculty first"} />
+                    <SelectValue
+                      placeholder={
+                        formData.faculty
+                          ? "Select department"
+                          : "Select faculty first"
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {formData.faculty &&
@@ -317,7 +379,9 @@ export default function CreateCollectionPage() {
                   max="50"
                   placeholder="e.g., 10"
                   value={formData.teamCount}
-                  onChange={(e) => setFormData({ ...formData, teamCount: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, teamCount: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -331,7 +395,9 @@ export default function CreateCollectionPage() {
                   minLength={6}
                   maxLength={12}
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -343,7 +409,9 @@ export default function CreateCollectionPage() {
                   type="email"
                   placeholder="For password recovery"
                   value={formData.creatorEmail}
-                  onChange={(e) => setFormData({ ...formData, creatorEmail: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, creatorEmail: e.target.value })
+                  }
                 />
               </div>
 
@@ -359,5 +427,5 @@ export default function CreateCollectionPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

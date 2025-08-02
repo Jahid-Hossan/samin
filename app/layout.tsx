@@ -1,3 +1,4 @@
+import { connectToDatabase } from "@/lib/mongodb";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
@@ -9,11 +10,13 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  await connectToDatabase();
+
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className={GeistSans.className}>{children}</body>
