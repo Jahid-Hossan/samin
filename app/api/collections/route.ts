@@ -85,6 +85,8 @@ export async function POST(request: NextRequest) {
       process.env.FRONTEND_URL || "http://localhost:3000"
     }/collection/${username}?password=${password}`;
 
+    console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+
     // Generate QR code
     const qrCodeDataURL = await QRCode.toDataURL(shareLink, {
       width: 200,
